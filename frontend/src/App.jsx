@@ -298,7 +298,7 @@ function AnalyticsPage({ history }) {
 
   // ── Critical alerts
   const alerts = data.filter(h => h.is_anomaly).slice(0, 5).map(h => ({
-    title: `Anomaly Detected - Instance ${h.instance_id.substring(0, 8)}...`,
+    title: `Anomaly Detected - Instance ${h.instance_id?.substring(0, 8) || 'Unknown'}...`,
     time: new Date(h.time).toLocaleString(),
     severity: h.score >= 0.8 ? 'critical' : 'warning'
   }));
@@ -306,9 +306,10 @@ function AnalyticsPage({ history }) {
   // Map Service Chart -> Instance Suspicion Chart
   const instanceMap = {};
   data.forEach(h => {
-    if (!instanceMap[h.instance_id]) instanceMap[h.instance_id] = { instance: h.instance_id.substring(0, 10), Suspicion: 0, count: 0 };
-    instanceMap[h.instance_id].Suspicion += h.score;
-    instanceMap[h.instance_id].count += 1;
+    const iid = h.instance_id || 'Unknown';
+    if (!instanceMap[iid]) instanceMap[iid] = { instance: iid.substring(0, 10), Suspicion: 0, count: 0 };
+    instanceMap[iid].Suspicion += (parseFloat(h.score) || 0);
+    instanceMap[iid].count += 1;
   });
   const instanceData = Object.values(instanceMap).map(v => ({ instance: v.instance, Suspicion: (v.Suspicion / v.count).toFixed(2) }));
 
