@@ -17,6 +17,12 @@ $Body = @{
         network_in_bytes = 1500000000
         hourly_spend = 12.85
     }
+    narrative = @{
+        who = "CloudWatch / PruneAI Agent"
+        what = "Unusual pattern detected on $InstanceId"
+        why = "Sudden spike in Hourly Spend ($12.85) and CPU (92.5%)"
+        action = "Executing Auto-Remediation..."
+    }
 } | ConvertTo-Json
 
 Invoke-RestMethod -Uri "http://34.201.22.230:8000/api/alert" -Method Post -Body $Body -ContentType "application/json"

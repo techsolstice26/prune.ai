@@ -139,9 +139,20 @@ async def receive_explainer_alert(alert: AlertPayload):
     except Exception as e:
         print(f"[DB-ERROR] Failed to persist alert: {e}")
 
-    # 2. Broadcast to Dashboard
+    # 2. Real-Time Remediation: Stop the instance if score >= 0.8
+    remediation_result = None
+    if alert.suspicion_score >= 0.8 and alert.instance_id and not alert.instance_id.startswith("i-0abcd"):
+        try:
+            print(f"[REMEDIATION] Attempting to stop instance {alert.instance_id}...")
+            remediation_result = aws_client.stop_instance(alert.instance_id, alert.role_arn)
+            print(f"[REMEDIATION] Result: {remediation_result}")
+        except Exception as e:
+            print(f"[REMEDIATION] Failed: {e}")
+            remediation_result = {"status": "error", "message": str(e)}
+
+    # 3. Broadcast to Dashboard
     await manager.broadcast_alert(alert.role_arn, alert.model_dump())
-    return {"status": "alert_broadcast_and_persisted", "delivered_to": alert.role_arn}
+    return {"status": "alert_broadcast_and_persisted", "delivered_to": alert.role_arn, "remediation": remediation_result}
 
 @app.post("/api/rollback")
 async def trigger_rollback(payload: dict):

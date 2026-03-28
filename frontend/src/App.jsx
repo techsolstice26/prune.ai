@@ -495,6 +495,7 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [historyData, setHistoryData] = useState(() => generateHistory(0.12));
   const [hasAlert, setHasAlert] = useState(false);
+  const [alertInstanceId, setAlertInstanceId] = useState(null);
 
   const addLog = (msg) => setLogs(prev => [...prev.slice(-14), { time: new Date().toLocaleTimeString(), msg }]);
 
@@ -533,6 +534,7 @@ export default function App() {
       addLog(`INCOMING ALERT: Suspicion Score ${data.suspicion_score}`);
 
       setScore(data.suspicion_score);
+      if (data.instance_id) setAlertInstanceId(data.instance_id);
       setHistoryData(generateHistory(data.suspicion_score));
       setHasAlert(data.suspicion_score >= 0.6);
 
@@ -566,16 +568,18 @@ export default function App() {
 
   const handleRollback = async () => {
     setStatus('calculating');
-    addLog('User requested Undo. Pushing command to FastAPI /api/rollback...');
+    const action = score >= 0.8 ? 'Undo Remediation (Start Instance)' : 'Manual Resolution (Stop Instance)';
+    addLog(`User requested ${action}. Pushing command to FastAPI /api/rollback...`);
 
     try {
       const backendUrl = import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:8000';
+      const targetInstance = alertInstanceId || 'i-0abcd1234efgh5678';
       const response = await fetch(`${backendUrl}/api/rollback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           role_arn: authSession.token,
-          instance_id: 'i-0abcd1234efgh5678',
+          instance_id: targetInstance,
           score: score
         }),
       });
