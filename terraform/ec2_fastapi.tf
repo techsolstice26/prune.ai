@@ -39,7 +39,8 @@ resource "aws_security_group" "fastapi_sg" {
 
 resource "aws_instance" "fastapi_server" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro" # Free Tier Eligible
+  instance_type = "t3.micro" # Free Tier Eligible
+  key_name      = "CloudScope-Key"
   iam_instance_profile = aws_iam_instance_profile.fastapi_ec2_profile.name
 
   vpc_security_group_ids = [aws_security_group.fastapi_sg.id]

@@ -8,7 +8,7 @@ app = FastAPI(title="CloudScope AIOps Delivery Layer")
 # Enable CORS for the React Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "*"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,10 +61,10 @@ async def register_aws_account(payload: AuthPayload):
     """Authenticates the Front-End against an AWS Cross-Account Role."""
     
     # MAGIC DEMO STRING FOR HACKATHON
-    if payload.role_arn == "arn:aws:iam::123456789012:role/demo":
+    if payload.role_arn in ["arn:aws:iam::008533941157:role/CloudScope-Demo", "arn:aws:iam::008533941157:role/PruneAI_CrossAccount_Role"]:
         return {
             "status": "authenticated",
-            "account_id": "123456789012 (DEMO)",
+            "account_id": "008533941157 (DEMO)",
             "token": payload.role_arn
         }
 

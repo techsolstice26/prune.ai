@@ -1,7 +1,7 @@
 data "archive_file" "detector_zip" {
   type        = "zip"
-  source_dir  = "$${path.module}/src/detector"
-  output_path = "$${path.module}/detector_payload.zip"
+  source_dir  = "${path.module}/src/detector"
+  output_path = "${path.module}/detector_payload.zip"
 }
 
 resource "aws_lambda_function" "detector_lambda" {
@@ -12,22 +12,21 @@ resource "aws_lambda_function" "detector_lambda" {
   handler          = "detector.lambda_handler"
   runtime          = "python3.11"
   timeout          = 60
+  layers           = ["arn:aws:lambda:us-east-1:336392948345:layer:AWSSDKPandas-Python311:12"] # AWS SDK for Pandas (includes numpy/psycopg2)
+
 
   environment {
     variables = {
+      TIMESCALEDB_URL = "postgresql://postgres:${var.db_password}@${aws_db_instance.timescaledb.address}:5432/postgres"
       SNS_TOPIC_ARN   = aws_sns_topic.anomalies.arn
-      DB_HOST         = aws_db_instance.timescaledb.address
-      DB_USER         = "postgres"
-      DB_PASS         = var.db_password
-      DB_NAME         = "postgres"
     }
   }
 }
 
 data "archive_file" "explainer_zip" {
   type        = "zip"
-  source_dir  = "$${path.module}/src/explainer"
-  output_path = "$${path.module}/explainer_payload.zip"
+  source_dir  = "${path.module}/src/explainer"
+  output_path = "${path.module}/explainer_payload.zip"
 }
 
 resource "aws_lambda_function" "explainer_lambda" {
@@ -42,7 +41,7 @@ resource "aws_lambda_function" "explainer_lambda" {
   environment {
     variables = {
       GEMINI_API_KEY  = "YOUR_API_KEY_HERE"
-      FASTAPI_URL     = "http://$${aws_instance.fastapi_server.public_ip}:8000"
+      FASTAPI_URL     = "http://${aws_instance.fastapi_server.public_ip}:8000"
     }
   }
 }

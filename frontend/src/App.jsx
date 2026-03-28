@@ -196,11 +196,15 @@ function App() {
                     <Zap size={20} color={score >= 0.8 ? "var(--accent-red)" : "var(--accent-orange)"} />
                     <h3 style={{ fontSize: '1rem', fontWeight: '600' }}>Gemini 2.0 Flash - Root Cause Analysis</h3>
                   </div>
-                  {score >= 0.8 && (
-                    <button className="btn btn-outline" onClick={handleRollback} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  {score >= 0.8 ? (
+                    <button className="btn btn-outline" onClick={handleRollback} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem', borderColor: 'var(--accent-red)', color: 'var(--accent-red)' }}>
                       <RotateCcw size={14} /> Undo Remediation
                     </button>
-                  )}
+                  ) : score >= 0.6 ? (
+                    <button className="btn btn-primary" onClick={handleRollback} style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <CheckCircle size={14} /> Manually Resolve
+                    </button>
+                  ) : null}
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>

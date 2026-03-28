@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS metrics_history (
 -- Convert to a hypertable (TimescaleDB specific functionality)
 -- Only run this if the hypertable doesn't already exist.
 -- Assuming chunk_time_interval of 1 day for this scale.
-SELECT create_hypertable('metrics_history', 'time', if_not_exists => TRUE);
+-- SELECT create_hypertable('metrics_history', 'time', if_not_exists => TRUE);
 
 -- Index for querying by instance
 CREATE INDEX IF NOT EXISTS ix_metrics_instance_time ON metrics_history (instance_id, time DESC);
