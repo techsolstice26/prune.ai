@@ -40,7 +40,7 @@ resource "aws_lambda_function" "explainer_lambda" {
 
   environment {
     variables = {
-      GEMINI_API_KEY  = "YOUR_API_KEY_HERE"
+      GEMINI_API_KEY  = "AIzaSyBkWm96OudJKGAdXLFSfKlbJ3o-5rfr1io"
       FASTAPI_URL     = "http://${aws_instance.fastapi_server.public_ip}:8000"
     }
   }
