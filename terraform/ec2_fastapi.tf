@@ -39,7 +39,7 @@ resource "aws_security_group" "fastapi_sg" {
 
 resource "aws_instance" "fastapi_server" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro" # Free Tier Eligible
+  instance_type = "t3.micro"
   key_name      = "CloudScope-Key"
   iam_instance_profile = aws_iam_instance_profile.fastapi_ec2_profile.name
 
@@ -49,10 +49,26 @@ resource "aws_instance" "fastapi_server" {
               #!/bin/bash
               apt-get update -y
               apt-get install -y python3-pip python3-venv
-              # Start FastAPI server logic goes here
               EOF
 
   tags = {
-    Name = "CloudScope-FastAPI-Server"
+    Name = "CloudScope-Dashboard-Server"
   }
+}
+
+# SECOND INSTANCE: THE "TARGET" FOR REMEDIATION DEMO
+resource "aws_instance" "target_instance" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t3.micro"
+  key_name      = "CloudScope-Key"
+
+  vpc_security_group_ids = [aws_security_group.fastapi_sg.id]
+
+  tags = {
+    Name = "CloudScope-Anomaly-Target"
+  }
+}
+
+output "target_id" {
+  value = aws_instance.target_instance.id
 }

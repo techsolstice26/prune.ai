@@ -139,9 +139,10 @@ def lambda_handler(event, context):
     
     # 4. Dashboard Push
     # Unifying the format so the dashboard receives it beautifully
-    if event_payload.get("suspicion_score", 0) > 0.8:
+    score_val = float(event_payload.get("suspicion_score", 0))
+    if score_val >= 0.8:
          narrative["action"] = "Auto-Remediation Executed (Resources Stopped)"
-    elif event_payload.get("suspicion_score", 0) > 0.6:
+    elif score_val >= 0.6:
          narrative["action"] = "Awaiting Manual Resolution"
          
     full_payload = {
