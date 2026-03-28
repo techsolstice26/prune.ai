@@ -156,14 +156,14 @@ async def trigger_rollback(payload: RollbackPayload):
     }
 
 @app.get("/api/history")
-async def get_anomaly_history(role_arn: str):
-    """Fetches the last 10 anomaly records from TimescaleDB scoped to a specific Role ARN."""
+async def get_anomaly_history(role_arn: str, limit: int = 20):
+    """Fetches historical anomaly records from TimescaleDB scoped to a specific Role ARN."""
     try:
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "SELECT time, instance_id, cpu_usage_percent, memory_usage_percent, suspicion_score, is_anomaly FROM metrics_history WHERE role_arn = %s ORDER BY time DESC LIMIT 10",
-            (role_arn,)
+            "SELECT time, instance_id, cpu_usage_percent, memory_usage_percent, suspicion_score, is_anomaly FROM metrics_history WHERE role_arn = %s ORDER BY time DESC LIMIT %s",
+            (role_arn, limit)
         )
         rows = cur.fetchall()
         
