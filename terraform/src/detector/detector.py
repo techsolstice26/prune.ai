@@ -103,8 +103,23 @@ def save_to_timescaledb(conn, metric_bundle, score):
         print(f"[DB-ERROR] Failed to write to DB: {e}")
 
 def publish_to_sns(bundle):
-    """Mocks sending a message to the SNS Topic."""
-    print(f"\n[SNS-PUBLISH] [ALERT] Anomaly Event Published! Payload: {bundle}\n")
+    """Publishes the anomaly event to the SNS Topic for the Explainer Lambda."""
+    import boto3
+    import json
+    sns_topic_arn = os.environ.get("SNS_TOPIC_ARN")
+    if not sns_topic_arn:
+        print(f"\n[SNS-MOCK] No SNS_TOPIC_ARN set. Payload: {bundle}\n")
+        return
+    try:
+        sns_client = boto3.client('sns', region_name='us-east-1')
+        response = sns_client.publish(
+            TopicArn=sns_topic_arn,
+            Message=json.dumps(bundle),
+            Subject="CloudScope Anomaly Alert"
+        )
+        print(f"[SNS-PUBLISH] Published to {sns_topic_arn}. MessageId: {response['MessageId']}")
+    except Exception as e:
+        print(f"[SNS-ERROR] Failed to publish: {e}")
 
 def lambda_handler(event, context):
     """AWS Lambda entry point for the Detector."""
@@ -137,7 +152,8 @@ def lambda_handler(event, context):
             "instance_id": instance_id,
             "suspicion_score": score,
             "metrics": metric_bundle,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
+            "role_arn": "arn:aws:iam::008533941157:role/PruneAI_CrossAccount_Role"
         }
         publish_to_sns(event_payload)
         
