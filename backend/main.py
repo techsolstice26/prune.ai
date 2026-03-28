@@ -115,9 +115,9 @@ async def receive_explainer_alert(alert: AlertPayload):
             """
             INSERT INTO metrics_history (
                 time, instance_id, cpu_usage_percent, memory_usage_percent, 
-                network_in_bytes, hourly_spend, suspicion_score, is_anomaly, role_arn
+                network_in_bytes, hourly_spend, suspicion_score, is_anomaly
             ) VALUES (
-                %s, %s, %s, %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s, %s, %s, %s
             )
             """,
             (
@@ -128,8 +128,7 @@ async def receive_explainer_alert(alert: AlertPayload):
                 alert.metrics.get("network_in_bytes"),
                 alert.metrics.get("hourly_spend"),
                 alert.suspicion_score,
-                alert.suspicion_score >= 0.6,
-                alert.role_arn
+                alert.suspicion_score >= 0.6
             )
         )
         conn.commit()
@@ -162,8 +161,7 @@ async def get_anomaly_history(role_arn: str):
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "SELECT time, instance_id, cpu_usage_percent, memory_usage_percent, suspicion_score, is_anomaly FROM metrics_history WHERE role_arn = %s ORDER BY time DESC LIMIT 10",
-            (role_arn,)
+            "SELECT time, instance_id, cpu_usage_percent, memory_usage_percent, suspicion_score, is_anomaly FROM metrics_history ORDER BY time DESC LIMIT 20"
         )
         rows = cur.fetchall()
         

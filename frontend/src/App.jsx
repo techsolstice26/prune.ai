@@ -492,7 +492,7 @@ export default function App() {
     if (!authSession) return;
     try {
       const backendUrl = import.meta.env.VITE_APP_BACKEND_URL || 'http://localhost:8000';
-      const resp = await fetch(`${backendUrl}/api/history?role_arn=${encodeURIComponent(authSession.role_arn)}`);
+      const resp = await fetch(`${backendUrl}/api/history?role_arn=${encodeURIComponent(authSession.token)}`);
       const data = await resp.json();
       setHistory(data);
     } catch (err) {
