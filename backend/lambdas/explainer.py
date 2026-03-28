@@ -49,11 +49,18 @@ def auto_remediate(instance_id):
 
 def publish_to_dashboard(narrative_json, event_payload):
     """Mock pushing JSON to FastAPI the delivery websocket."""
+    # Parse the narrative string into a dict to match AlertPayload
+    try:
+        narrative_dict = json.loads(narrative_json)
+    except Exception:
+        narrative_dict = {"raw": narrative_json}
+
     # Build payload to match AlertPayload BaseModel in main.py
     payload = {
+        "role_arn": event_payload.get('role_arn', "arn:aws:iam::123456789012:role/demo"),
         "instance_id": event_payload.get('instance_id', 'unknown'),
         "suspicion_score": event_payload.get('suspicion_score', 0.0),
-        "narrative": narrative_json,
+        "narrative": narrative_dict,
         "metrics": event_payload.get('metrics', {})
     }
     print("\n[FASTAPI-WEBHOOK] Pushing narrative to Dashboard internally via HTTP POST...")

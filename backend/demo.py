@@ -7,7 +7,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), 'lambdas'))
 from mock_data import get_mock_cloudwatch_vitals, get_mock_cost_explorer_spend, get_mock_cloudtrail_logs
 from detector import calculate_suspicion_score, generate_historical_baseline, save_to_timescaledb
-from explainer import generate_ai_narrative, auto_remediate
+from explainer import generate_ai_narrative, auto_remediate, publish_to_dashboard
 
 load_dotenv()
 
@@ -53,7 +53,8 @@ def run_e2e_demo():
             "instance_id": instance_id,
             "suspicion_score": score,
             "metrics": metric_bundle,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
+            "role_arn": "arn:aws:iam::123456789012:role/demo"
         }
         
         # 3. Narrative
@@ -68,6 +69,9 @@ def run_e2e_demo():
              print(json.dumps(parsed, indent=2))
         except:
              print(narrative_json)
+        
+        # 4. Delivery
+        publish_to_dashboard(narrative_json, event_payload)
         
         # 5. Remediation
         if score >= 0.80:
